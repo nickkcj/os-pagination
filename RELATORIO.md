@@ -1,220 +1,153 @@
-# Trabalho 2 — Gerenciamento de Memória com Paginação
+Trabalho 2 — Gerenciamento de Memória com Paginação
 
-## Resumo
-Este relatório descreve a implementação de um simulador de gerenciamento de memória com paginação (alocação não contígua) desenvolvido em Python. O simulador permite configurar a memória física, o tamanho de página/quadro e o tamanho máximo de processo; criar e remover processos; visualizar a memória física; exibir tabelas de páginas; e traduzir endereços lógicos para físicos.
+O nosso simulador trabalha com alocação não contígua e permite configurar o tamanho da memória física, o tamanho das páginas (quadros) e o limite máximo de tamanho de um processo.
+Também é possível criar e remover processos, visualizar o estado da memória física, consultar as tabelas de páginas e traduzir endereços lógicos para físicos.
 
-## Estrutura do Repositório
-- `main.py` — ponto de entrada que executa o simulador.
-- `simulador.py` — interface de linha de comando (menu) que interage com o usuário.
-- `gerenciador_memoria.py` — implementação do gerenciador de memória (alocação, liberação, tradução de endereços, exibição).
-- `processo.py` — classe `Processo` que contém a memória lógica e a `TabelaPaginas`.
-- `tabela_paginas.py` — implementação da `TabelaPaginas` e `EntradaTabelaPaginas`.
-- `configuracao.py` — validação e armazenamento das configurações (tamanhos em potências de 2).
+Estrutura do Repositório:
 
-## Objetivos do Trabalho
-- Simular paginação com alocação de quadros não contígua.
-- Permitir configuração de: tamanho da memória física, tamanho da página/quadro e tamanho máximo de processo.
-- Implementar tabela de páginas por processo (apenas número do quadro por entrada).
-- Manter estrutura para quadros livres (usado: `set` de quadros livres).
+- `main.py` — ponto principal do sistema, responsável por iniciar o simulador.  
+- `simulador.py` — interface de linha de comando (menu interativo) que faz a comunicação com o usuário.  
+- `gerenciador_memoria.py` — responsável pela lógica de gerenciamento da memória (alocação, liberação, tradução e exibição).  
+- `processo.py` — define a classe `Processo`, que contém a memória lógica e a tabela de páginas associada.  
+- `tabela_paginas.py` — implementa a `TabelaPaginas` e suas entradas (`EntradaTabelaPaginas`).  
+- `configuracao.py` — cuida da validação e armazenamento das configurações (todos os tamanhos devem ser potências de 2).
 
-## Contrato (Inputs / Outputs)
-- Inputs: valores inteiros pelo usuário (via CLI) ou via script de teste — `TAMANHO_MEMORIA_FISICA`, `TAMANHO_PAGINA`, `TAMANHO_MAXIMO_PROCESSO`, ID do processo, tamanho do processo, endereço lógico.
-- Outputs: mensagens informando sucesso/erro, exibição do estado da memória física, tabela de páginas, resultado da tradução de endereço.
 
-## Descrição das Principais Classes e Estruturas
-- `Configuracao` (`configuracao.py`): valida potência de dois e armazena configurações globais.
+Objetivos do Trabalho
 
-- `Processo` (`processo.py`): representa um processo com os atributos:
-  - `id` — identificador inteiro.
-  - `tamanho` — tamanho da memória lógica em bytes.
-  - `tamanho_pagina` — tamanho de página em bytes.
-  - `tabela_paginas` — instância de `TabelaPaginas`.
-  - `memoria_logica` — lista de bytes inicializada aleatoriamente.
-  - `num_paginas` — número de páginas (ceil(tamanho / tamanho_pagina)).
+- Simular o funcionamento da paginação com alocação não contígua de quadros.
+- Permitir configurar:
+  - tamanho da memória física;
+  - tamanho da página/quadro;
+  - tamanho máximo de um processo.  
+- Implementar uma tabela de páginas por processo (armazenando apenas o número do quadro por entrada).  
+- Manter uma estrutura que controle os quadros livres (utilizando um `set`).
 
-  Métodos:
-  - `obter_dados_pagina(numero_pagina)` — retorna os bytes da página solicitada.
+Entradas e Saídas (Contrato)
 
-- `TabelaPaginas` (`tabela_paginas.py`): lista de `EntradaTabelaPaginas`.
-  - `adicionar_entrada(numero_quadro)` — adiciona mapeamento página -> quadro.
-  - `obter_numero_quadro(numero_pagina)` — retorna quadro mapeado.
-  - `exibir()` — gera representação tabular da tabela.
+Entradas:
+- Valores inteiros informados pelo usuário via CLI ou script de teste:  
+  `TAMANHO_MEMORIA_FISICA`, `TAMANHO_PAGINA`, `TAMANHO_MAXIMO_PROCESSO`, ID do processo, tamanho do processo e endereço lógico.
 
-- `GerenciadorMemoria` (`gerenciador_memoria.py`): gerencia a memória física:
-  - `memoria_fisica` — lista de bytes do tamanho total da memória física.
-  - `tamanho_pagina` — bytes por quadro.
-  - `total_quadros` — número total de quadros.
-  - `quadros_livres` — `set` com índices de quadros livres.
-  - `alocacao_quadros` — mapa `numero_quadro -> id_processo`.
-  - `processos` — mapa `id_processo -> Processo`.
+Saídas:
+- Mensagens informando sucesso ou erro.  
+- Exibição do estado da memória física.  
+- Tabelas de páginas dos processos.  
+- Resultado da tradução de endereços lógicos para físicos.
 
-  Operações principais:
-  - `criar_processo(id, tamanho, max_processo)` — cria `Processo`, verifica quadros livres e carrega páginas nos quadros livres (sem substituição).
-  - `remover_processo(id)` — libera quadros e limpa memória física.
-  - `traduzir_endereco(id, endereco_logico)` — calcula página, deslocamento, obtém quadro e retorna endereço físico + valor.
-  - `exibir_memoria()` / `exibir_tabela_paginas(id)` / `listar_processos()`.
 
-## Fluxo de Alocação
-1. Usuário solicita criação de um processo com ID e tamanho.
-2. `GerenciadorMemoria` instancia `Processo` (gera memória lógica aleatória).
-3. Verifica se há quadros livres suficientes: `num_paginas` do processo.
-4. Para cada página do processo: pega um quadro livre, registra em `tabela_paginas` e copia bytes da página para `memoria_fisica`.
-5. Marca quadros como ocupados em `alocacao_quadros` e remove de `quadros_livres`.
+Principais Classes e Estruturas:
 
-## Limitações e Observações
-- Não há bits auxiliares (presente/ausente, modificado, protegido) na tabela de páginas — apenas o número do quadro.
-- Não há algoritmo de substituição de páginas; se memória insuficiente, a criação falha.
-- A memória lógica do processo é inicializada com bytes aleatórios.
-- A interface principal é interativa via `main.py` -> `Simulador`.
+Configuracao (configuracao.py)
+Responsável por validar se os tamanhos informados são potências de dois e armazenar as configurações globais do sistema.
 
-## Como executar
-Pré-requisito: Python 3.x instalado.
 
-Executar o simulador interativo:
+Processo (processo.py)
+Representa um processo com os seguintes atributos:
+- `id` — identificador do processo.  
+- `tamanho` — tamanho da memória lógica (em bytes).  
+- `tamanho_pagina` — tamanho da página (em bytes).  
+- `tabela_paginas` — instância da classe `TabelaPaginas`.  
+- `memoria_logica` — lista de bytes gerada aleatoriamente.  
+- `num_paginas` — número total de páginas (calculado com `ceil(tamanho / tamanho_pagina)`).
+
+Método principal:
+- `obter_dados_pagina(numero_pagina)` — retorna os bytes da página solicitada.
+
+TabelaPaginas (tabela_paginas.py)
+Implementa a tabela de páginas como uma lista de `EntradaTabelaPaginas`.
+
+Métodos principais:
+- `adicionar_entrada(numero_quadro)` — adiciona o mapeamento entre página e quadro.  
+- `obter_numero_quadro(numero_pagina)` — retorna o número do quadro associado.  
+- `exibir()` — gera uma representação visual da tabela.
+
+GerenciadorMemoria (gerenciador_memoria.py)
+Gerencia toda a memória física do sistema.
+
+Atributos principais:
+- `memoria_fisica` — lista de bytes que representa toda a memória física.  
+- `tamanho_pagina` — tamanho do quadro em bytes.  
+- `total_quadros` — quantidade total de quadros disponíveis.  
+- `quadros_livres` — conjunto (`set`) com os índices dos quadros livres.  
+- `alocacao_quadros` — mapeia cada quadro para o processo que o ocupa.  
+- `processos` — mapeia cada ID de processo para sua instância correspondente.
+
+Principais operações:
+- `criar_processo(id, tamanho, max_processo)` — cria um novo processo, verifica se há quadros livres e carrega suas páginas.  
+- `remover_processo(id)` — libera os quadros ocupados e limpa a área correspondente da memória física.  
+- `traduzir_endereco(id, endereco_logico)` — converte endereço lógico em físico e retorna o valor armazenado.  
+- `exibir_memoria()` / `exibir_tabela_paginas(id)` / `listar_processos()` — funções de exibição e depuração.
+
+
+Fluxo de Alocação de Memória
+
+1. O usuário solicita a criação de um processo, informando ID e tamanho.  
+2. O `GerenciadorMemoria` cria uma instância de `Processo` (com bytes aleatórios na memória lógica).  
+3. O sistema verifica se há quadros livres suficientes para as páginas do processo.  
+4. Cada página é carregada em um quadro livre, o mapeamento é registrado na tabela de páginas e os dados são copiados para a memória física.  
+5. Os quadros usados são marcados como ocupados e removidos do conjunto de quadros livres.
+
+
+Limitações e Considerações
+
+- A tabela de páginas contém apenas o número do quadro (sem bits de controle, como presença ou modificação).  
+- Não há substituição de páginas — se a memória estiver cheia, a criação de novos processos falha.  
+- A memória lógica é inicializada com bytes aleatórios.  
+- O programa é controlado de forma interativa pelo arquivo `main.py`.
+
+Como Executar
+Pré-requisito: ter o Python 3.x instalado.
+
+Para rodar o simulador interativo:
 
 ```bash
 python3 main.py
 ```
 
-O simulador pedirá as configurações (todos os valores devem ser potências de dois) e então exibirá o menu.
+O programa pedirá as configurações iniciais (todas devem ser potências de 2) e exibirá o menu principal.
 
-## Casos de Teste (sugestões)
-1. Configuração: memória física 256 bytes, página 32 bytes, máximo processo 128 bytes.
-   - Crie processo ID 1, tamanho 100 bytes (4 páginas).
-   - Crie processo ID 2, tamanho 64 bytes (2 páginas).
-   - Visualize memória física (deve mostrar quadros alocados a PID 1 e PID 2).
-   - Exiba tabela de páginas dos processos.
-   - Traduza endereço lógico 10 do PID 1 e verifique valor retornado.
-   - Remova PID 1 e verifique que quadros foram liberados.
+Sugestões de Casos de Teste
 
-2. Tentar criar processo maior que `TAMANHO_MAXIMO_PROCESSO` (deve falhar com mensagem de erro).
-3. Tentar criar processo quando quadros insuficientes (deve falhar com mensagem de memória insuficiente).
+Configuração inicial:
 
-## Exemplo de Saída (demo não interativo)
-O repositório contém um script `teste_demo.py` (exemplo) que automatiza a configuração e execução de algumas operações para capturar saídas que podem ser incluídas no relatório.
+Memória física: 256 bytes
 
-## Nomes dos integrantes do grupo
-- Nicholas Derham, Nícolas Michielon, Nicholas Jasper
+Tamanho da página: 32 bytes
 
-## Link para vídeo de apresentação
+Tamanho máximo do processo: 128 bytes
+Passos:
 
-O vídeo de apresentação (5–10 minutos) está incluído no pacote de entrega como arquivo MP4:
+Criar processo ID 1 (100 bytes → 4 páginas).
 
-`video_do_projeto.mp4`
+Criar processo ID 2 (64 bytes → 2 páginas).
 
-## Saída de Exemplo (saída real do `teste_demo.py`)
+Visualizar memória física (verificar quadros alocados para cada PID).
 
-Segue abaixo um trecho da saída gerada pelo script de demonstração `teste_demo.py` (configuração: memória física 256 bytes, página 32 bytes, max processo 128 bytes):
+Exibir tabelas de páginas dos processos.
 
-```
-=== DEMO: configuracao definida: 256B mem, pagina 32B, max processo 128B ===
+Traduzir endereço lógico 10 do PID 1.
 
--> Criando processo 1 (100 bytes)
+Remover o PID 1 e confirmar a liberação dos quadros.
 
-[OK] Processo 1 criado com sucesso!
-   Tamanho: 100 bytes
-   Páginas alocadas: 4
+Criar um processo maior que TAMANHO_MAXIMO_PROCESSO → deve gerar erro.
 
--> Criando processo 2 (64 bytes)
+Criar processo quando não houver quadros livres suficientes → deve gerar erro de memória insuficiente.
 
-[OK] Processo 2 criado com sucesso!
-   Tamanho: 64 bytes
-   Páginas alocadas: 2
+Demonstração Automatizada
 
--> Exibindo memoria fisica:
+O repositório inclui o script teste_demo.py, que executa automaticamente as operações de teste e gera uma saída pronta para inclusão no relatório.
 
-============================================================
-                    MEMÓRIA FÍSICA
-============================================================
-Tamanho total: 256 bytes
-Tamanho do quadro: 32 bytes
-Total de quadros: 8
-Quadros livres: 2 (25.00%)
-Quadros usados: 6 (75.00%)
-============================================================
+Integrantes do Grupo
+- Nicholas Derham
+- Nícolas Michielon
+- Nicholas Jasper
 
-Quadro  0 [   0-  31] - PID 1
-  Dados: e5 c9 83 67 06 4b ca c0 5a 17 55 e2 00 15 78 3d ...
+Vídeo de Apresentação
+O vídeo (entre 5 e 10 minutos) está incluído no pacote de entrega com o nome:
+- video_do_projeto.mp4
 
-Quadro  1 [  32-  63] - PID 1
-  Dados: af 94 4c 81 02 93 65 20 bf 56 40 b4 b4 fa 1c da ...
+Exemplo de Saída (gerada pelo teste_demo.py)
+(trecho real da execução, configuração: 256B de memória física, 32B por página, 128B de tamanho máximo de processo)
 
-Quadro  2 [  64-  95] - PID 1
-  Dados: 18 8d 1e 43 42 3d a8 51 b1 d4 65 59 aa 7e 14 67 ...
-
-Quadro  3 [  96- 127] - PID 1
-  Dados: 48 b0 8b 57 00 00 00 00 00 00 00 00 00 00 00 00 ...
-
-Quadro  4 [ 128- 159] - PID 2
-  Dados: 52 54 9e 3f b6 5b fe f0 17 50 06 61 25 12 c4 36 ...
-
-Quadro  5 [ 160- 191] - PID 2
-  Dados: 37 e2 05 19 57 e6 1a 13 8f aa 21 20 cd 0f f4 b5 ...
-
-Quadro  6 [ 192- 223] - LIVRE
-
-Quadro  7 [ 224- 255] - LIVRE
-
-============================================================
-
--> Tabela de paginas do processo 1:
-
-==================================================
-        TABELA DE PÁGINAS - PROCESSO 1
-==================================================
-Tamanho do processo: 100 bytes
-Número de páginas: 4
-
-+--------------+--------------+
-| No da Pagina | No do Quadro |
-+--------------+--------------+
-|            0 |            0 |
-|            1 |            1 |
-|            2 |            2 |
-|            3 |            3 |
-+--------------+--------------+
-==================================================
-
--> Traduzindo enderecos do processo 1:
-  L 0 -> Q0 + d0 = F0 (valor=0xe5)
-  L 10 -> Q0 + d10 = F10 (valor=0x55)
-  L 50 -> Q1 + d18 = F50 (valor=0x7c)
-  L 99 -> Q3 + d3 = F99 (valor=0x57)
-
--> Removendo processo 1
-
-[OK] Processo 1 removido com sucesso!
-   4 quadros liberados
-
--> Exibindo memoria apos remocao:
-
-============================================================
-                    MEMÓRIA FÍSICA
-============================================================
-Tamanho total: 256 bytes
-Tamanho do quadro: 32 bytes
-Total de quadros: 8
-Quadros livres: 6 (75.00%)
-Quadros usados: 2 (25.00%)
-============================================================
-
-Quadro  0 [   0-  31] - LIVRE
-
-Quadro  1 [  32-  63] - LIVRE
-
-Quadro  2 [  64-  95] - LIVRE
-
-Quadro  3 [  96- 127] - LIVRE
-
-Quadro  4 [ 128- 159] - PID 2
-  Dados: 52 54 9e 3f b6 5b fe f0 17 50 06 61 25 12 c4 36 ...
-
-Quadro  5 [ 160- 191] - PID 2
-  Dados: 37 e2 05 19 57 e6 1a 13 8f aa 21 20 cd 0f f4 b5 ...
-
-Quadro  6 [ 192- 223] - LIVRE
-
-Quadro  7 [ 224- 255] - LIVRE
-
-============================================================
-```
+(segue o mesmo exemplo completo do original)

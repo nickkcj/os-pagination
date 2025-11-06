@@ -5,17 +5,17 @@ Simulador de Gerenciamento de Memória com Paginação
 __version__ = "1.0.0"
 __author__ = "Sistemas Operacionais"
 
-from .config import Config
-from .page_table import PageTable, PageTableEntry
-from .process import Process
-from .memory_manager import MemoryManager
-from .simulator import Simulator
+from .configuracao import Configuracao
+from .tabela_paginas import TabelaPaginas, EntradaTabelaPaginas
+from .processo import Processo
+from .gerenciador_memoria import GerenciadorMemoria
+from .simulador import Simulador
 
 __all__ = [
-    'Config',
-    'PageTable',
-    'PageTableEntry',
-    'Process',
-    'MemoryManager',
-    'Simulator'
+    'Configuracao',
+    'TabelaPaginas',
+    'EntradaTabelaPaginas',
+    'Processo',
+    'GerenciadorMemoria',
+    'Simulador'
 ]

@@ -4,17 +4,17 @@ Ponto de entrada principal do simulador de gerenciamento de memória.
 Para executar:
     python main.py
 
-Você pode modificar as configurações no arquivo config.py
+Você pode modificar as configurações no arquivo configuracao.py
 """
 
-from simulator import Simulator
+from simulador import Simulador
 
 
 def main():
     """Função principal"""
     try:
-        simulator = Simulator()
-        simulator.run()
+        simulador = Simulador()
+        simulador.executar()
     except KeyboardInterrupt:
         print("\n\nSimulador interrompido pelo usuário.\n")
     except Exception as e:

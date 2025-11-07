@@ -132,8 +132,8 @@ Integrantes do Grupo
 - Nicholas Jasper
 
 Vídeo de Apresentação
-O vídeo (entre 5 e 10 minutos) está incluído no pacote de entrega com o nome:
-- video_do_projeto.mp4
+O vídeo (entre 5 e 10 minutos) pode ser acessado pelo seguinte link:
+- `https://drive.google.com/file/d/1rkUozx8ARE9N66H9FD8VEmoAII9tkCeF/view?usp=sharing`
 
 Exemplo de Saída (gerada pelo teste_demo.py)
 (trecho real da execução, configuração: 256B de memória física, 32B por página, 128B de tamanho máximo de processo)

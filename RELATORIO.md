@@ -41,7 +41,6 @@ Principais Classes e Estruturas:
 Configuracao (configuracao.py)
 Responsável por validar se os tamanhos informados são potências de dois e armazenar as configurações globais do sistema.
 
-
 Processo (processo.py)
 Representa um processo com os seguintes atributos:
 - `id` — identificador do processo.  
@@ -110,32 +109,21 @@ O programa pedirá as configurações iniciais (todas devem ser potências de 2)
 Sugestões de Casos de Teste
 
 Configuração inicial:
+- Memória física: 256 bytes
+- Tamanho da página: 32 bytes
+- Tamanho máximo do processo: 128 bytes
 
-Memória física: 256 bytes
-
-Tamanho da página: 32 bytes
-
-Tamanho máximo do processo: 128 bytes
 Passos:
-
-Criar processo ID 1 (100 bytes → 4 páginas).
-
-Criar processo ID 2 (64 bytes → 2 páginas).
-
-Visualizar memória física (verificar quadros alocados para cada PID).
-
-Exibir tabelas de páginas dos processos.
-
-Traduzir endereço lógico 10 do PID 1.
-
-Remover o PID 1 e confirmar a liberação dos quadros.
-
-Criar um processo maior que TAMANHO_MAXIMO_PROCESSO → deve gerar erro.
-
-Criar processo quando não houver quadros livres suficientes → deve gerar erro de memória insuficiente.
+1. Criar processo ID 1 (100 bytes → 4 páginas).
+2. Criar processo ID 2 (64 bytes → 2 páginas).
+3. Visualizar memória física (verificar quadros alocados para cada PID).
+4. Exibir tabelas de páginas dos processos.
+5. Traduzir endereço lógico 10 do PID 1.
+6. Remover o PID 1 e confirmar a liberação dos quadros.
+7. Criar um processo maior que TAMANHO_MAXIMO_PROCESSO → deve gerar erro.
+8. Criar processo quando não houver quadros livres suficientes → deve gerar erro de memória insuficiente.
 
 Demonstração Automatizada
-
 O repositório inclui o script teste_demo.py, que executa automaticamente as operações de teste e gera uma saída pronta para inclusão no relatório.
 
 Integrantes do Grupo
